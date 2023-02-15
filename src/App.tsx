@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect} from 'react';
+import {GetAllBreedListService} from "./services/GetAllBreedList.service";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import './App.css';
+import {MapBreedList} from "./services/MapBreedList.service";
+import {SelectBreedComponent} from "./components/SelectBreedComponent";
+import {SubBreedSelectComponent} from "./components/SubBreedSelectComponent";
+import {BreedType} from "./models/BreedType";
+
+const App = () => {
+    const [breedList, setBreedList] = React.useState<Array<any>>([]);
+    const [selectedBreed, setSelectedBreed] = React.useState<string>("");
+
+    const breedFound: BreedType = breedList.find(breed => breed.name === selectedBreed) || {
+        name: "",
+        subBreed: [],
+    };
+
+    useEffect(() => {
+        GetAllBreedListService()
+            .then(data => {
+                const breedListMapped = MapBreedList(data.data);
+                setBreedList([...breedListMapped]);
+            });
+    }, []);
+
+    return (
+        <div className="App">
+            <h3>Dog App</h3>
+
+            <SelectBreedComponent
+                setSelectedBreed={setSelectedBreed}
+                breedList={breedList}
+            />
+
+            <SubBreedSelectComponent
+                breedFound={breedFound}
+            />
+        </div>
+    );
+};
 
 export default App;
